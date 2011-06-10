@@ -7,16 +7,19 @@ $(function() {
   var faye;
 
   // get faye url
-  $.getJSON('/faye_url.json', function(data) {
-    if (data.length) {
-      chat(data);
-      console.log(data);
-    } else {
-      alert('Cannot get Faye IP');
-    }
-
-  });
-
+  // $.getJSON('/faye_url.json', function(data) {
+  //   if (data.length) {
+  //     chat(data);
+  //     console.log(data);
+  //   } else {
+  //     alert('Cannot get Faye IP');
+  //   }
+  // 
+  // });
+  
+  chat(window.faye_url);
+  console.log(window.faye_url);
+  
   function chat(faye_url) {
     
     console.log(faye_url+"/faye");
@@ -100,8 +103,8 @@ $(function() {
       } else {
         // this is a dirty message -- clean it up
         // faye.publish('/messages/dirty', {
-        // faye.publish('/messages/new', {
-        faye.publish('/classifier/new', {
+        faye.publish('/messages/new', {
+        // faye.publish('/classifier/new', {
           username: $('#message_username').val(),
           timestamp: formatTime(),
           text: $('#message_text').val()

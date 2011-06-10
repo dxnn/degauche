@@ -4,8 +4,6 @@ FayeMessaging::Application.routes.draw do
   
   match "/auth/:provider/callback" => "sessions#create"
 
-  match "/faye_url" => "fayeurl#index"
-
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
