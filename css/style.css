@@ -14,7 +14,6 @@ body {
   background: -ms-linear-gradient(top, #cedce7 0%,#596a72 100%); /* IE10+ */
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cedce7', endColorstr='#596a72',GradientType=0 ); /* IE6-9 */
   background: linear-gradient(top, #cedce7 0%,#596a72 100%); /* W3C */
-  
 }
 
 body, p, ol, ul, td, input, select, label {
@@ -40,7 +39,7 @@ input {
 }
 
 div#chat_box {
-  height: 500px;
+  height: 400px;
   width: 800px;
   border: 1px solid #1E5799;
   overflow-y: scroll;

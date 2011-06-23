@@ -27,9 +27,9 @@ Execute this line from the app's root directory to run Faye:
   rackup faye.ru -s thin -E production
 
 Then run this to get the rails server running:
-rails s
+  rails s
 
-You need to edit faye.yml to point to the server's local IP address.
+You'll need to edit faye.yml to point to the server's local IP address.
 
 
 == Notes on Implementation
