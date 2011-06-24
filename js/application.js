@@ -63,8 +63,8 @@ DEGAUCHE.receive_message = function(data) {
 
   // run through each extension (until message is false)
   for (var i=0; i < DEGAUCHE.extensions.length; i++) {
-    if(DEGAUCHE.extensions[i].incoming) {
-      packet = DEGAUCHE.extensions[i].incoming(packet);
+    if(DEGAUCHE.extensions[i].receive) {
+      packet = DEGAUCHE.extensions[i].receive(packet);
     };
     if(!packet) {continue;} // fail on false
   };
@@ -93,8 +93,8 @@ DEGAUCHE.send_message = function(e) {
 
   // run through each extension (until message is false)
   for (var i=0; i < DEGAUCHE.extensions.length; i++) {
-    if(DEGAUCHE.extensions[i].outgoing) {
-      packet = DEGAUCHE.extensions[i].outgoing(packet);
+    if(DEGAUCHE.extensions[i].send) {
+      packet = DEGAUCHE.extensions[i].send(packet);
     };
     if(!packet) {continue;} // fail on false
   };
@@ -134,16 +134,41 @@ DEGAUCHE.unextend = function(keyword) {
 
 // DEFAULT EXTENSIONS BELOW HERE
 
-
 /*
   Extensions have a name and description property.
   They can also implement the following functions:
   init: function() {}
   keydown: function(e) {return false;}
-  incoming: function(packet) {return packet}
-  outgoing: function(packet) {return packet}
+  receive: function(packet) {return packet}
+  send: function(packet) {return packet}
 */
 
+DEGAUCHE.extend({
+  name: "Server fun",
+  description: "Contact the server and do basic extension management",
+  init: function() {
+    // variable declarations we want to clean on init() go inside. dirty variables live outside.
+    var ext = this;
+  },
+  receive: function(packet) {return packet},
+  send: function(packet) {
+    var ext = this;
+    var text = packet.message.text;
+    
+    if(text.indexOf('/server list extensions') === 0) {
+      // TODO: get the list
+      return false;
+    }
+    
+    if(text.indexOf('/server add extension ') === 0) {
+      var ext_file = text.slice(23);
+      $('http://ascri.be/extensions/' + ext_file + '.js').appendTo('body');
+      return false;
+    }
+    
+    return packet;
+  }
+});
 
 
 

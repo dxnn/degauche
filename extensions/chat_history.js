@@ -48,7 +48,7 @@ DEGAUCHE.extend({
     });
   },
   incoming: function(packet) {return packet},
-  outgoing: function(packet) {
+  send: function(packet) {
     var ext = this;
     ext.list.unshift(packet.message.text);
     ext.value = '';
