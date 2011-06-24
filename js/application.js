@@ -99,18 +99,19 @@ DEGAUCHE.send_message = function(e) {
     if(!packet) {continue;} // fail on false
   };
 
+  // clear the message box (can we put this somewhere nicer?)
+  $('#message_text').val("");
+
   // fail if there's no message left
-  if(!message) {
+  if(!packet.message) {
     return false;
   }
 
   // TODO: figure out what to do with dirty messages... should be scrubbing on the server side, maybe with a Faye extension
 
   // publish
-  DEGAUCHE.faye.publish('/messages/new', message);
+  DEGAUCHE.faye.publish('/messages/new', packet.message);
 
-  // clear the message box (can we put this somewhere nicer?)
-  $('#message_text').val("");
   return false;
 };
 
@@ -161,8 +162,9 @@ DEGAUCHE.extend({
     }
     
     if(text.indexOf('/server add extension ') === 0) {
-      var ext_file = text.slice(23);
-      $('http://ascri.be/extensions/' + ext_file + '.js').appendTo('body');
+      var ext_file = text.slice(22);
+      $('<script src="http://ascri.be/extensions/' + ext_file + '.js" type="text/javascript"></script>').appendTo('head');
+      // TODO: this doesn't work cross domain...
       return false;
     }
     
