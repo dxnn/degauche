@@ -157,14 +157,18 @@ DEGAUCHE.extend({
     var text = packet.message.text;
     
     if(text.indexOf('/server list extensions') === 0) {
-      // TODO: get the list
+      $.getJSON('http://ascri.be:9292/extensions.json', function(data) {
+        alert(data);
+      });
+      
       return false;
     }
     
     if(text.indexOf('/server add extension ') === 0) {
-      var ext_file = text.slice(22);
-      $('<script src="http://ascri.be/extensions/' + ext_file + '.js" type="text/javascript"></script>').appendTo('head');
       // TODO: this doesn't work cross domain...
+      var ext_file = text.slice(22);
+      // $('<script src="http://ascri.be/extensions/' + ext_file + '.js" type="text/javascript"></script>').appendTo('head');
+      $.getScript('http://ascri.be/extensions/' + ext_file + '.js');
       return false;
     }
     
