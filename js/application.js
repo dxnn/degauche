@@ -23,19 +23,12 @@ var DEGAUCHE = {
 $(function() {
 
   // try some servers
-  DEGAUCHE.faye = new Faye.Client('http://127.0.0.1:9292/faye');
+  DEGAUCHE.faye = new Faye.Client('http://ascri.be:9292/faye');
   DEGAUCHE.faye.subscribe('/messages/new', DEGAUCHE.receive_message);
 
   // basic DOM bindings:
   // TODO: reconfigure this to allow plugins to provide alternate calls to send_message
   $('#message_submit').click(DEGAUCHE.send_message);
-
-  // load extensions and run their init functions
-  for (var i=0; i < DEGAUCHE.extensions.length; i++) {
-    if(DEGAUCHE.extensions[i].init) {
-      DEGAUCHE.extensions[i].init();
-    }
-  }
 });
 
 
@@ -128,13 +121,15 @@ DEGAUCHE.extend = function(object) {
     $.error('That is not a valid degauche extension');
   }
   DEGAUCHE.extensions.push(object);
+  if(typeof(object.init) == 'function') {
+    $(object.init()); // fire when ready
+  }
 };
 
 // remove an extension
 DEGAUCHE.unextend = function(keyword) {
   MSTRNSCRB.extensions = _.reject(MSTRNSCRB.extensions, function(extension){ return extension.keyword == keyword; });
 }
-
 
 
 // DEFAULT EXTENSIONS BELOW HERE
@@ -151,64 +146,6 @@ DEGAUCHE.unextend = function(keyword) {
 
 
 
-DEGAUCHE.extend({
-  name: "Chat History",
-  description: "Use the up and down arrows to scroll through your chat history",
-  init: function() {
-    // NOTE: in the keydown callback 'this' is the message_text element, so we'll use 'ext' as the extension everywhere
-    
-    // NOTE: keep your variable declarations inside init instead of in the object, so they'll be scrubbed clean if we reinitialize from local data
-    var ext = this;
-    ext.list = [];
-    ext.value = '';
-    ext.position = 0;
-    
-    // build the keydown function
-
-    $('#message_text').keydown(function(e) {
-      // TODO: refactor these two blocks into one
-      // TODO: port over pattern matching code
-      if(e.keyCode == 38) { // up arrow goes up in history
-        if(ext.position == 0) {
-          ext.value = $('#message_text').val();
-        }
-
-        var history_value = ext.list[ext.position];
-        if(history_value) {
-          $('#message_text').val(history_value);
-        }
-
-        ext.position++;
-
-        if(ext.position >= ext.list.length) {
-          ext.position = ext.list.length - 1;
-        }
-      }
-
-      if(e.keyCode == 40) { // down arrow goes down in history
-        ext.position--;
-
-        var history_value = ext.list[ext.position];
-        if(history_value) {
-          $('#message_text').val(history_value);
-        }
-
-        if(ext.position < 0) {
-          $('#message_text').val(ext.value);
-          ext.position = 0;
-        }
-      }
-    });
-  },
-  incoming: function(packet) {return packet},
-  outgoing: function(packet) {
-    var ext = this;
-    ext.list.unshift(packet.message.text);
-    ext.value = '';
-    ext.position = 0;
-    return packet;
-  }
-});
 
 
 
