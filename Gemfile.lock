@@ -149,7 +149,6 @@ GEM
     ruby-openid-apps-discovery (1.2.0)
       ruby-openid (>= 2.1.7)
     rubyntlm (0.1.1)
-    sqlite3 (1.3.3)
     stemmer (1.0.1)
     thin (1.2.11)
       daemons (>= 1.0.9)
@@ -177,5 +176,4 @@ DEPENDENCIES
   omniauth
   rails (= 3.0.7)
   rake (~> 0.8.7)
-  sqlite3
   twss

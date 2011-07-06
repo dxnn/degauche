@@ -1,5 +1,5 @@
 DEGAUCHE.extend({
-  name: "Chat History",
+  name: "Scrolling History",
   description: "Use the up and down arrows to scroll through your chat history",
   init: function() {
     // NOTE: in the keydown callback 'this' is the message_text element, so we'll use 'ext' as the extension everywhere
