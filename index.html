@@ -9,43 +9,26 @@
 
   <script src="js/jquery.js" type="text/javascript"></script>  
   <script src="http://ascri.be:9292/faye.js" type="text/javascript"></script>
+  
+  <!-- <script src="js/lawnchair-all.fc419e34.js"></script>-->
+  <script src="js/pubsub.js"></script>
+  <script src="js/underscore-min.js"></script>
+  
   <script src="js/application.js" type="text/javascript"></script>
 </head>
 <body>
  
 <div id="container"> 
-  <h1>Group Chat</h1> 
-  
   <div id="header">
-    <div class='user'> 
-      <a href="/auth/twitter">Sign in with Twitter</a> 
-    </div>     
+    <h1>ascri.be</h1>
+    <p>degaucheing made easy</p>
   </div>
   
-  <div id='chat_box'></div> 
-  
-  <div id='chat_form'> 
-    <form accept-charset="UTF-8" action="/" method="post">
-      <p>
-        <label for="message_username">Username</label> 
-        <input id="message_username" name="message[username]" size="30" type="text" />       
-      </p>
-      <input id="message_text" name="message[text]" size="60" type="text"> 
-      <input id="message_submit" name="commit" type="submit" value="Send"> 
-    </form> 
+  <div id="content">
+    <button id="basic_loader" value="Load basic functionality" onclick="$(this).remove(); DEGAUCHE.extend(DEGAUCHE.basic_extension);">Load basic functionality</button>
   </div>
 
   <div id="footer"></div>
-</div>
-
-<div id="message_template" style="display:none"> 
-  <div class="message"> 
-    <div class="timestamp"></div> 
-    <div class="wrong_classification"><a href="#">Wrong?</a></div> 
-    <div class="classification"></div> 
-    <div class="username"></div> 
-    <div class="text"></div> 
-  </div> 
 </div>
 
 </body> 
