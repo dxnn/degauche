@@ -17,6 +17,8 @@ DEGAUCHE.extend({
     // if(packet.message.text.indexOf("{{") == -1) return packet;
     // packet.message.text.replace(/\{\{/g, '{').replace(/\}\}/g, '}');
     
+    if(!packet.basic) packet.basic = {};
+    if(!packet.basic.callbacks) packet.basic.callbacks = [];
     packet.basic.callbacks.push(function($el) {
       $el.mistranscribe();
     });
