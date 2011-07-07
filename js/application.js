@@ -1,7 +1,6 @@
 // DEcentralized Group AUgmented CHat, Extensibly (DEGAUCHE)
-// (degauche makes you less uncouthly sinister)
+// (degauche makes you less uncouthly sinister!)
 
-// TODO: push DEGAUCHE into local storage (every time extensions/servers are modified), and check for it up here
 
 /* 
   THINK:
@@ -54,7 +53,7 @@ DEGAUCHE.input = function(message, layer) {
   if(_.isString(message)) message = {text: message};
   if(!message.text) return false;
   
-  // keyword activation, like '/extension add subdomain.ascri.be'
+  // keyword activation, like '/extension load scrolling_history'
   if(message.text.slice(0,1) == '/') {
     var splits = message.text.slice(1).split(/ /, 2);
     DEGAUCHE.invoke(splits[0], splits[1], message.text.slice(splits[0].length + splits[1].length + 3));
@@ -155,17 +154,17 @@ DEGAUCHE.extend = function(ext) {
 
 // remove an extension
 DEGAUCHE.unextend = function(keyword) {
-  if(DEGAUCHE.extensions.keyword) {
-    if(typeof(DEGAUCHE.extensions.keyword.message_display) == 'function') {
-      $.unsubscribe("message/display", DEGAUCHE.extensions.keyword.message_display);
+  if(DEGAUCHE.extensions[keyword]) {
+    if(typeof(DEGAUCHE.extensions[keyword].message_display) == 'function') {
+      $.unsubscribe("message/display", DEGAUCHE.extensions[keyword].message_display);
     }
-    if(typeof(DEGAUCHE.extensions.keyword.message_sent) == 'function') {
-      $.unsubscribe("message/sent", DEGAUCHE.extensions.keyword.message_sent);
+    if(typeof(DEGAUCHE.extensions[keyword].message_sent) == 'function') {
+      $.unsubscribe("message/sent", DEGAUCHE.extensions[keyword].message_sent);
     }
-    if(typeof(DEGAUCHE.extensions.keyword.destroy) == 'function') {
-      DEGAUCHE.extensions.keyword.destroy();
+    if(typeof(DEGAUCHE.extensions[keyword].destroy) == 'function') {
+      DEGAUCHE.extensions[keyword].destroy();
     }
-    delete(DEGAUCHE.extensions.keyword);
+    delete(DEGAUCHE.extensions[keyword]);
   }
 }
 
@@ -175,11 +174,13 @@ DEGAUCHE.unextend = function(keyword) {
 /*
   Extensions have a keyword and a description property.
   They can also implement the following functions:
+  
   init: function() {}
   message_display: function(packet) {}
   message_sent: function(packet) {}
   mafipulate_received: function(packet) {return packet}
   mafipulate_sending: function(packet) {return packet}
+  
   Additional extension functions can be called by other extensions as
   DEGAUCHE.extensions.ext_keyword.ext_function(params)
   or invoked using
@@ -282,7 +283,7 @@ DEGAUCHE.extension_extension = {
         if(DEGAUCHE.extensions[keyword]) {
           button = ' -- loaded';
         } else {
-          button = '<button onclick="DEGAUCHE.extensions.extension.add(\'' + keyword + '\'); $(this).parent().text(\' -- loaded\'); $(this).remove(); ">Load</button>';
+          button = '<button onclick="DEGAUCHE.extensions.extension.load(\'' + keyword + '\'); $(this).parent().text(\' -- loaded\'); $(this).remove(); ">Load</button>';
         }
         $html.append('<li>' + keyword + ' <span>' + button + '</span></li>');
       });
@@ -302,11 +303,17 @@ DEGAUCHE.extension_extension = {
     var packet = {basic: {html_extras: $html}, message: true};
     $.publish('message/display', packet);
   },
-  add: function(params) {
+  load: function(params) {
     var ext = this;
     var ext_keyword = params.split(/ /, 1)[0];
   
     $.getScript('http://ascri.be/extensions/' + ext_keyword + '.js');
+  },
+  unload: function(params) {
+    var ext = this;
+    var ext_keyword = params.split(/ /, 1)[0];
+    
+    DEGAUCHE.unextend(ext_keyword);
   }
 };
 
@@ -314,38 +321,17 @@ DEGAUCHE.extension_extension = {
 
 /*
   TODO:
+  -- extension unload command
   - add mistranscribe extension
   - add image extension (via url)
   - add audio extension
   - show invokable extensions on '/'
   - show invokable commands and ext description on '/ext'
-  - local storage for DEGAUCHE
+  - local storage for DEGAUCHE (every time extensions/servers are modified)
   - chat history extension
   - show pending messages (w/ extension)
   
 */
-
-
-
-// -- request extension list from server
-
-// -- request specific extension from server for install
-  // -- note the install request
-
-// -- accept requested extension and add it to our local extension repository
-  // -- check for install request; remove or error
-  // -- populate keyword, name, desc into extensions
-  // -- copy JS into extensions (eval?)
-  // -- run init
-
-// -- on message send
-  // -- run through each extension (until false)
-  // -- if not false, publish to /messages/new
-
-// -- on message receive
-  // -- run through each extension (until false)
-  // -- not false? show in chatbox
-
 
 
 

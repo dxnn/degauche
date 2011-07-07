@@ -31,10 +31,17 @@
 
 
 <div id="sidebar">
-  <button id="basic_loader" value="Load basic functionality" onclick="$(this).remove(); DEGAUCHE.extend(DEGAUCHE.basic_extension);">Load basic functionality</button>
+  <button id="basic_loader" value="Load basic functionality extension" onclick="$(this).remove(); DEGAUCHE.extend(DEGAUCHE.basic_extension);">Load basic functionality</button>
   
-  <button id="server_loader" value="Load server functionality" onclick="$(this).remove(); DEGAUCHE.extend(DEGAUCHE.extension_extension);">Load server functionality</button>
+  <button id="server_loader" value="Load the extension manipulation extension" onclick="$(this).remove(); DEGAUCHE.extend(DEGAUCHE.extension_extension);">Load extension extension</button>
 </div>
 
+  <p>Once you've loaded those extensions, try these commands:</p>
+  <pre>
+/extension list
+/extension remote
+/extension load keyword
+/extension unload keyword
+  </pre>
 </body> 
 </html>
