@@ -252,10 +252,17 @@ DEGAUCHE.basic_extension = {
         $html.append(value);
       })
     }
-    
+        
     // display the message
     $chat_box.append($html);
-    $chat_box.scrollTop(1000000);   
+    $chat_box.scrollTop(1000000);
+    
+    // in case someone else wants to munge things after creation
+    if(packet.basic && packet.basic.callbacks) {
+      $.each(packet.basic.callbacks, function(i, value) {
+        value($html);
+      })
+    }
   },
   destroy: function() {
     $('#basic_extension_content').remove();

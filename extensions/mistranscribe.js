@@ -11,11 +11,15 @@ DEGAUCHE.extend({
 
     if(packet.message.text.indexOf("{") == -1) return packet;
     
-    var $html = $('<script>$(this).parent().mistranscribe();</script>');
-    packet.basic = {html_extras: $html};
+    // var $html = $('<script>$(this).parent().mistranscribe();</script><p>asdf</p>');
+    // packet.basic = {html_extras: [$html]};
     
     // if(packet.message.text.indexOf("{{") == -1) return packet;
     // packet.message.text.replace(/\{\{/g, '{').replace(/\}\}/g, '}');
+    
+    packet.basic.callbacks.push(function($el) {
+      $el.mistranscribe();
+    });
     
     return packet;
   }
