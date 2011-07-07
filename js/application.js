@@ -34,7 +34,7 @@
 var DEGAUCHE = {
   faye: false,
   servers: [],
-  extensions: []
+  extensions: {}
 };
 
 
@@ -54,7 +54,7 @@ DEGAUCHE.input = function(message, layer) {
   if(_.isString(message)) message = {text: message};
   if(!message.text) return false;
   
-  // keyword activation, like '/server add subdomain.ascri.be'
+  // keyword activation, like '/extension add subdomain.ascri.be'
   if(message.text.slice(0,1) == '/') {
     var splits = message.text.slice(1).split(/ /, 2);
     DEGAUCHE.invoke(splits[0], splits[1], message.text.slice(splits[0].length + splits[1].length + 3));
@@ -68,7 +68,7 @@ DEGAUCHE.input = function(message, layer) {
 DEGAUCHE.invoke = function(ext_keyword, command, params) {
   if(!DEGAUCHE.extensions[ext_keyword]) return false;
   if(!_.isFunction(DEGAUCHE.extensions[ext_keyword][command])) return false;
-  DEGAUCHE.extensions[ext_keyword][command](params.split(/ /));
+  DEGAUCHE.extensions[ext_keyword][command](params);
 }
 
 
@@ -78,15 +78,15 @@ DEGAUCHE.send_message_to_faye = function(message, layer) {
   var packet = {message: message};
 
   // run through each extension (until message is false)
-  for (var i = DEGAUCHE.extensions.length - 1; i >= 0; i--){
-    if(DEGAUCHE.extensions[i].mafipulate_sending) {
-      packet = DEGAUCHE.extensions[i].mafipulate_sending(packet);
+  $.each(DEGAUCHE.extensions, function(keyword, ext) {
+    if(ext.mafipulate_sending) {
+      packet = ext.mafipulate_sending(packet);
     };
-    if(!packet) {continue;} // fail on false
-  };
+    if(!packet) {return false;} // fail on false
+  });
 
   // fail if there's no message left
-  if(!packet.message) {
+  if(!packet || !packet.message) {
     return false;
   }
 
@@ -109,13 +109,18 @@ DEGAUCHE.receive_message_from_faye = function(data) {
   var packet = {data: data, message: message};
 
   // mafipulation for received messages
-  for (var i = DEGAUCHE.extensions.length - 1; i >= 0; i--){
-    if(DEGAUCHE.extensions[i].mafipulate_received) {
-      packet = DEGAUCHE.extensions[i].mafipulate_received(packet);
+  $.each(DEGAUCHE.extensions, function(keyword, ext) {
+    if(ext.mafipulate_received) {
+      packet = ext.mafipulate_received(packet);
       if(!packet) {return false;}
     };
-  };
+  });
   
+  // fail if there's no message left
+  if(!packet || !packet.message) {
+    return false;
+  }
+
   // publish event for message_display handlers
   $.publish('message/display', packet);
   
@@ -168,7 +173,7 @@ DEGAUCHE.unextend = function(keyword) {
 // DEFAULT EXTENSIONS BELOW HERE
 
 /*
-  Extensions have a keyword, a name and a description property.
+  Extensions have a keyword and a description property.
   They can also implement the following functions:
   init: function() {}
   message_display: function(packet) {}
@@ -186,7 +191,6 @@ DEGAUCHE.unextend = function(keyword) {
 // BASIC EXTENSION
 DEGAUCHE.basic_extension = {
   keyword: 'basic',
-  name: "Basic",
   description: "Some basic input / output stuff",
   init: function() {
     // variable declarations we want to clean on init() go inside. dirty variables live outside.
@@ -258,28 +262,51 @@ DEGAUCHE.basic_extension = {
 };
 
 
-// SERVER EXTENSION
-DEGAUCHE.server_extension = {
-  keyword: 'server',
-  name: "Server fun",
-  description: "Contact the server and do basic extension management",
+// EXTENSION EXTENSION
+DEGAUCHE.extension_extension = {
+  keyword: 'extension',
+  description: "Do basic extension management",
   init: function() {
     // variable declarations we want to clean on init() go inside. dirty variables live outside.
     var ext = this;
   },
-  list: function(params) {
+  remote: function(params) {
     var ext = this;
     
+    // TODO: make this respect layers
     $.getScript('http://ascri.be:9292/extensions.json', function() {
-      var packet = {message: {text: 'Available extensions: ' + extensions.join(', ')}};
+      var $html = $('<ul></ul>');
+      var button = '';
+      $.each(extensions, function(i, extension) {
+        keyword = extension.slice(0, -3);
+        if(DEGAUCHE.extensions[keyword]) {
+          button = ' -- loaded';
+        } else {
+          button = '<button onclick="DEGAUCHE.extensions.extension.add(\'' + keyword + '\'); $(this).parent().text(\' -- loaded\'); $(this).remove(); ">Load</button>';
+        }
+        $html.append('<li>' + keyword + ' <span>' + button + '</span></li>');
+      });
+
+      var packet = {basic: {html_extras: $html}, message: true};
       $.publish('message/display', packet);
     });
   },
+  list: function(params) {
+    var ext = this,
+        $html = $('<ul></ul>');
+    
+    $.each(DEGAUCHE.extensions, function(keyword, extension) {
+      $html.append('<li><strong>' + keyword + '</strong>: ' + extension.description + '</li>');
+    });
+    
+    var packet = {basic: {html_extras: $html}, message: true};
+    $.publish('message/display', packet);
+  },
   add: function(params) {
     var ext = this;
-    var ext_file = params[0];
+    var ext_keyword = params.split(/ /, 1)[0];
   
-    $.getScript('http://ascri.be/extensions/' + ext_file + '.js');
+    $.getScript('http://ascri.be/extensions/' + ext_keyword + '.js');
   }
 };
 
@@ -287,25 +314,29 @@ DEGAUCHE.server_extension = {
 
 /*
   TODO:
-  - show pending messages
+  - add mistranscribe extension
+  - add image extension (via url)
+  - add audio extension
   - show invokable extensions on '/'
   - show invokable commands and ext description on '/ext'
-  - figure out what to do with dirty messages... should be scrubbing on the server side, maybe with a Faye extension
+  - local storage for DEGAUCHE
+  - chat history extension
+  - show pending messages (w/ extension)
   
 */
 
 
 
-// - request extension list from server
+// -- request extension list from server
 
-// - request specific extension from server for install
-  // - note the install request
+// -- request specific extension from server for install
+  // -- note the install request
 
-// - accept requested extension and add it to our local extension repository
-  // - check for install request; remove or error
-  // - populate keyword, name, desc into extensions
-  // - copy JS into extensions (eval?)
-  // - run init
+// -- accept requested extension and add it to our local extension repository
+  // -- check for install request; remove or error
+  // -- populate keyword, name, desc into extensions
+  // -- copy JS into extensions (eval?)
+  // -- run init
 
 // -- on message send
   // -- run through each extension (until false)
@@ -319,7 +350,7 @@ DEGAUCHE.server_extension = {
 
 
 
-// TODO: move this to a extension
+// TODO: move this to an extension
 DEGAUCHE.classification = function() {
   $('.classification', message).text(data.classification);
 
@@ -354,7 +385,7 @@ DEGAUCHE.classification = function() {
 
 
 
-// TODO: move this to a extension
+// TODO: move this into an extension
 DEGAUCHE.audio = function() {
   if($('#message_text').val().indexOf('/play ') === 0) {
     // make some music
@@ -369,18 +400,9 @@ DEGAUCHE.audio = function() {
     audioElement.setAttribute('src', sound_url);
     audioElement.addEventListener("load", function() {
       audioElement.play();
-      $(".duration span").html(audioElement.duration);
-      $(".filename span").html(audioElement.src);
     }, true);
     audioElement.load()
     audioElement.play();
-  } else {
-    // send to our shiny new interceptor
-    // DEGAUCHE.faye.publish('/interceptor/new', {
-    //   username: $('#message_username').val(),
-    //   timestamp: DEGAUCHE.formatTime(),
-    //   text: $('#message_text').val()
-    // });
   }
 }
 
