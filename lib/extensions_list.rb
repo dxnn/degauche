@@ -8,7 +8,7 @@ class ExtensionsList
     if req.path == "/extensions.json"
       dir = File.expand_path(File.join(File.dirname(__FILE__), '..', 'extensions'))
       response = JSON::generate(Dir.entries(dir).select {|f| f =~ /\.js$/ })
-      puts response.inspect
+      response = 'var extensions = ' + response + ';'
       [ 200, {"Content-Type" => "text/javascript"}, [response] ]
     else
       @app.call(env)

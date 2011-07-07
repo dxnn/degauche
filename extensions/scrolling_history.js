@@ -1,8 +1,9 @@
 DEGAUCHE.extend({
+  keyword: "scrolling_history",
   name: "Scrolling History",
   description: "Use the up and down arrows to scroll through your chat history",
   init: function() {
-    // NOTE: in the keydown callback 'this' is the message_text element, so we'll use 'ext' as the extension everywhere
+    // NOTE: in the keydown callback 'this' is the message_text element, so we'll just use 'ext' as the extension everywhere
     
     // NOTE: keep your variable declarations inside init instead of in the object, so they'll be scrubbed clean if we reinitialize from local data
     var ext = this;
@@ -47,8 +48,7 @@ DEGAUCHE.extend({
       }
     });
   },
-  incoming: function(packet) {return packet},
-  send: function(packet) {
+  mafipulate_sending: function(packet) {
     var ext = this;
     ext.list.unshift(packet.message.text);
     ext.value = '';
