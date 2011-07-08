@@ -1,0 +1,53 @@
+<!DOCTYPE html> 
+<html> 
+<head> 
+  <title>ascri.be</title> 
+
+  <link href='http://fonts.googleapis.com/css?family=Carter+One' rel='stylesheet' type='text/css'> 
+  <link href='http://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet' type='text/css'> 
+  <link href="css/style.css" media="screen" rel="stylesheet" type="text/css">
+
+  <script src="js/jquery.js" type="text/javascript"></script>  
+  <script src="http://ascri.be:9292/faye.js" type="text/javascript"></script>
+  
+  <!-- <script src="js/lawnchair-all.fc419e34.js"></script>-->
+  <script src="js/pubsub.js"></script>
+  <script src="js/underscore-min.js"></script>
+  
+  <script src="js/application.js" type="text/javascript"></script>
+</head>
+<body>
+ 
+<div id="container"> 
+  <div id="header">
+    <h1>ascri.be</h1>
+    <p>degaucheing made easy</p>
+    <form id="connection_form">
+      <p>
+        <label for="address">Change connection</label><input type="text" name="address" value="" id="address" />
+        <input type="submit" value="Submit" />
+      </p>
+    </form>
+  </div>
+  
+  <div id="content"></div>
+
+  <div id="footer"></div>
+</div>
+
+
+<div id="sidebar">
+  <button id="basic_loader" value="Load basic functionality extension" onclick="$(this).remove(); DEGAUCHE.extend(DEGAUCHE.basic_extension);">Load basic functionality</button>
+  
+  <button id="server_loader" value="Load the extension manipulation extension" onclick="$(this).remove(); DEGAUCHE.extend(DEGAUCHE.extension_extension);">Load extension extension</button>
+</div>
+
+  <p>Once you've loaded those extensions, try these commands:</p>
+  <pre>
+/extension list
+/extension remote
+/extension load keyword
+/extension unload keyword
+  </pre>
+</body> 
+</html>
